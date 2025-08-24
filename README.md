@@ -2,7 +2,7 @@
 
 Este repositorio corresponde al análisis del caso **Web Analytics at Quality Alloys, Inc.**, desarrollado para el curso de Business Analytics – Pontificia Universidad Javeriana (2025-1).
 
-Datos y archivos de réplica para el caso **Quality Alloys, Inc. (QA)** por *Karol Juliana Riaño Ortiz*.
+Datos y archivos de réplica para el caso **Quality Alloys, Inc. (QA)** por *Karol Juliana Riaño Ortiz*,*Daniel Parra Mora*,*Alejandra Herrera Jimenez*
 
 ---
 

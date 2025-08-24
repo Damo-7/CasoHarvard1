@@ -107,4 +107,98 @@ ggplot(dataset, aes(x = Week_date, y = Profit)) +
 ggplot(dataset, aes(x = Week_date, y = Lbs. Sold)) + 
   geom_col() + labs(title = "Lbs. Sold por semana", x = "Semana", y = "Lbs. Sold")
 
+
 # Visitas totalesggplot(dataset, aes(x = Week_date, y = Visits)) + geom_col() + labs(title = "Visits por semana")
+# 5) Descriptivos por periodo (4 tablas × 25 valores)
+# =================================================
+# Función helper para resumir 5 stats × 5 variables (transpuesta)
+resumir_5x5_t <- function(df_periodo){
+  tibble(
+    Estadística = c("Mean","Median","SD","Min","Max"),
+    Visits = c(mean(df_periodo$Visits, na.rm=TRUE),
+               median(df_periodo$Visits, na.rm=TRUE),
+               sd(df_periodo$Visits, na.rm=TRUE),
+               min(df_periodo$Visits, na.rm=TRUE),
+               max(df_periodo$Visits, na.rm=TRUE)),
+    Unique Visits = c(mean(df_periodo$Unique Visits, na.rm=TRUE),
+                        median(df_periodo$Unique Visits, na.rm=TRUE),
+                        sd(df_periodo$Unique Visits, na.rm=TRUE),
+                        min(df_periodo$Unique Visits, na.rm=TRUE),
+                        max(df_periodo$Unique Visits, na.rm=TRUE)),
+    Revenue = c(mean(df_periodo$Revenue, na.rm=TRUE),
+                median(df_periodo$Revenue, na.rm=TRUE),
+                sd(df_periodo$Revenue, na.rm=TRUE),
+                min(df_periodo$Revenue, na.rm=TRUE),
+                max(df_periodo$Revenue, na.rm=TRUE)),
+    Profit = c(mean(df_periodo$Profit, na.rm=TRUE),
+               median(df_periodo$Profit, na.rm=TRUE),
+               sd(df_periodo$Profit, na.rm=TRUE),
+               min(df_periodo$Profit, na.rm=TRUE),
+               max(df_periodo$Profit, na.rm=TRUE)),
+    Lbs. Sold = c(mean(df_periodo$Lbs. Sold, na.rm=TRUE),
+                    median(df_periodo$Lbs. Sold, na.rm=TRUE),
+                    sd(df_periodo$Lbs. Sold, na.rm=TRUE),
+                    min(df_periodo$Lbs. Sold, na.rm=TRUE),
+                    max(df_periodo$Lbs. Sold, na.rm=TRUE))
+  )
+}
+
+# Generar tablas por periodo
+initial_tbl      <- dataset %>% filter(period=="Initial")        %>% resumir_5x5_t()
+prepromo_tbl     <- dataset %>% filter(period=="Pre-Promotion")  %>% resumir_5x5_t()
+promotion_tbl    <- dataset %>% filter(period=="Promotion")      %>% resumir_5x5_t()
+postpromo_tbl    <- dataset %>% filter(period=="Post-Promotion") %>% resumir_5x5_t()
+
+# Mostrar resultados
+cat("\n### Tabla (Initial)\n");       print(initial_tbl)
+cat("\n### Tabla (Pre-Promotion)\n"); print(prepromo_tbl)
+cat("\n### Tabla (Promotion)\n");     print(promotion_tbl)
+cat("\n### Tabla (Post-Promotion)\n");print(postpromo_tbl)
+# 6) Gráficos de medias por periodo (5 barras)
+# =================================================
+means <- dataset %>%
+  group_by(period) %>%
+  summarise(
+    visits_mean  = mean(Visits, na.rm=TRUE),
+    unique_mean  = mean(Unique Visits, na.rm=TRUE),
+    revenue_mean = mean(Revenue, na.rm=TRUE),
+    profit_mean  = mean(Profit, na.rm=TRUE),
+    lbs_mean     = mean(Lbs. Sold, na.rm=TRUE)
+  )
+
+ggplot(means, aes(x = period, y = visits_mean))  + geom_col() + labs(title="Mean Visits por periodo")
+ggplot(means, aes(x = period, y = unique_mean))  + geom_col() + labs(title="Mean Unique Visits por periodo")
+ggplot(means, aes(x = period, y = revenue_mean)) + geom_col() + labs(title="Mean Revenue por periodo")
+ggplot(means, aes(x = period, y = profit_mean))  + geom_col() + labs(title="Mean Profit por periodo")
+ggplot(means, aes(x = period, y = lbs_mean))     + geom_col() + labs(title="Mean Lbs. Sold por periodo")
+
+# Pequeño resumen automático (texto corto)
+cat("\n---\nResumen breve por periodo (medias):\n")
+print(means)
+# 7) Relaciones entre variables (scatter + correlaciones)
+# =================================================
+cor_visits_revenue <- cor(dataset$Visits,       dataset$Revenue,   use="complete.obs")
+cor_lbs_revenue    <- cor(dataset$Lbs. Sold,  dataset$Revenue,   use="complete.obs")
+cor_unique_revenue <- cor(dataset$Unique Visits, dataset$Revenue, use="complete.obs")
+
+cat("\nCorrelación Revenue vs Lbs. Sold:", round(cor_lbs_revenue, 3), "\n")
+cat("Correlación Revenue vs Visits:",      round(cor_visits_revenue, 3), "\n")
+cat("Correlación Revenue vs Unique:",      round(cor_unique_revenue, 3), "\n")
+
+ggplot(dataset, aes(x = Lbs. Sold, y = Revenue)) +
+  geom_point() + labs(title="Revenue vs Lbs. Sold (Y=Revenue)")
+
+ggplot(dataset, aes(x = Visits, y = Revenue)) +
+  geom_point() + labs(title="Revenue vs Visits (Y=Revenue)")
+
+# Interpretación corta automática
+cat("\nInterpretación rápida:\n")
+if(!is.na(cor_lbs_revenue)){
+  if(cor_lbs_revenue > 0.7) cat("- Revenue y Lbs. Sold muestran relación fuerte y positiva.\n")
+  else if(cor_lbs_revenue > 0.4) cat("- Revenue y Lbs. Sold muestran relación moderada y positiva.\n")
+  else cat("- La relación entre Revenue y Lbs. Sold es débil/modesta.\n")
+}
+if(!is.na(cor_visits_revenue)){
+  if(cor_visits_revenue > 0.7) cat("- Revenue y Visits muestran relación fuerte y positiva.\n")
+  else if(cor_visits_revenue > 0.4) cat("- Revenue y Visits muestran relación moderada y positiva.\n")
+  else cat("- La relación entre Revenue y Visits es débil/modesta.\n")
